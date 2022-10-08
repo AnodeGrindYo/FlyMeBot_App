@@ -1,5 +1,4 @@
 requests==2.23.0
-# botbuilder-core==4.13.0
 botbuilder-core==4.13.0
 botframework-connector==4.13.0
 botbuilder-schema==4.13.0
@@ -9,7 +8,6 @@ botbuilder-applicationinsights==4.13.0
 botbuilder-integration-aiohttp==4.13.0
 botbuilder-integration-applicationinsights-aiohttp==4.13.0
 botbuilder-dialogs==4.13.0
-# botframework-streaming==4.13.0
 azure-cognitiveservices-language-luis==0.2.0
 datatypes-date-time>=1.0.0.a1
 msrest==0.6.10
@@ -18,3 +16,4 @@ unittest2
 aiounittest
 opencensus-ext-azure
 emoji==1.7
+pytest==7.1.3

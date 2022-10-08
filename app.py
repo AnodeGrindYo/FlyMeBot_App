@@ -30,6 +30,7 @@ from bots import DialogAndWelcomeBot
 
 from adapter_with_error_handler import AdapterWithErrorHandler
 from flight_booking_recognizer import FlightBookingRecognizer
+import os
 
 CONFIG = DefaultConfig()
 
@@ -65,6 +66,12 @@ BOOKING_DIALOG = BookingDialog(telemetry_client=TELEMETRY_CLIENT)
 DIALOG = MainDialog(RECOGNIZER, BOOKING_DIALOG, telemetry_client=TELEMETRY_CLIENT)
 BOT = DialogAndWelcomeBot(CONVERSATION_STATE, USER_STATE, DIALOG, TELEMETRY_CLIENT)
 
+def print_keys():
+    print("LUIS_APP_ID : ", os.environ.get("LUIS_APP_ID"))
+    print("LUIS_API_KEY : ", os.environ.get("LUIS_API_KEY"))
+    print("LUIS_API_HOST_NAME : ", os.environ.get("LUIS_API_HOST_NAME"))
+    print("APPINSIGHTS_INSTRUMENTATION_KEY : ", os.environ.get("APPINSIGHTS_INSTRUMENTATION_KEY"))
+
 
 # Listen for incoming requests on /api/messages.
 async def messages(req: Request) -> Response:
@@ -92,6 +99,7 @@ if __name__ == "__main__":
     APP = init_func(None)
     try:
         # Run app in production
+        # print_keys()
         web.run_app(APP, host="0.0.0.0", port=CONFIG.PORT)
     except Exception as error:
         raise error
