@@ -71,6 +71,7 @@ def print_keys():
     print("LUIS_API_KEY : ", os.environ.get("LUIS_API_KEY"))
     print("LUIS_API_HOST_NAME : ", os.environ.get("LUIS_API_HOST_NAME"))
     print("APPINSIGHTS_INSTRUMENTATION_KEY : ", os.environ.get("APPINSIGHTS_INSTRUMENTATION_KEY"))
+    print("LUIS_API_ENDPOINT : ", os.environ.get('LUIS_API_ENDPOINT'))
 
 
 # Listen for incoming requests on /api/messages.
@@ -99,7 +100,7 @@ if __name__ == "__main__":
     APP = init_func(None)
     try:
         # Run app in production
-        # print_keys()
+        print_keys()
         web.run_app(APP, host="0.0.0.0", port=CONFIG.PORT)
     except Exception as error:
         raise error

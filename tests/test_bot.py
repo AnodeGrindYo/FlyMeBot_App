@@ -1,206 +1,96 @@
-import sys
-import os
-import json
-import aiounittest
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from booking_details import BookingDetails
+from azure.cognitiveservices.language.luis.runtime import LUISRuntimeClient
+from msrest.authentication import CognitiveServicesCredentials
 from config import DefaultConfig
-from dialogs import BookingDialog, MainDialog
-from flight_booking_recognizer import FlightBookingRecognizer
-from helpers.luis_helper import LuisHelper, Intent
 
-from botbuilder.dialogs.prompts import TextPrompt
-
-from botbuilder.core import (
-    TurnContext, 
-    ConversationState, 
-    MemoryStorage
-)
-
-from botbuilder.dialogs import DialogSet, DialogTurnStatus
-from botbuilder.core.adapters import TestAdapter
-
-class LuisTest(aiounittest.AsyncTestCase):
-
-    # Test la requête vers Luis et la réponse obtenue
-    async def test_luis_query(self):
-
-        CONFIG = DefaultConfig()
-        RECOGNIZER = FlightBookingRecognizer(CONFIG)
-
-        async def exec_test(turn_context: TurnContext):
-
-            intent, result = await LuisHelper.execute_luis_query(RECOGNIZER, turn_context)
-
-            await turn_context.send_activity(
-                json.dumps(
-                    {
-                        "intent": intent,
-                        "booking_details": None if not hasattr(result, "__dict__") else result.__dict__,
-                    }
-                )
-            )
-
-        adapter = TestAdapter(exec_test)
-
-        await adapter.test(
-            "Hello",
-            json.dumps(
-                {
-                    "intent": Intent.NONE_INTENT.value,
-                    "booking_details": None,
-                }
-            ),
-        )
-
-        await adapter.test(
-            "Hello, I want to go to Paris",
-            json.dumps(
-                {
-                    "intent": Intent.BOOK_FLIGHT.value,
-                    "booking_details": BookingDetails(
-                        destination="Paris"
-                    ).__dict__,
-                }
-            ),
-        )
-
-        await adapter.test(
-            "I want to book a flight from Berlin. My budget is 300$. I will leave the 20 december 2022 and coming back the 2 january 2023.",
-            json.dumps(
-                {
-                    "intent": Intent.BOOK_FLIGHT.value,
-                    "booking_details": BookingDetails(
-                        origin = "Berlin",
-                        start_date = "2022-12-20",
-                        end_date = "2023-01-02",
-                        budget = 300
-                    ).__dict__,
-                }
-            ),
-        )
+CONFIG = DefaultConfig()
 
 
-class BotTest(aiounittest.AsyncTestCase):
 
-    # Test une réservation étape par étape
-    async def test_booking_step_by_step(self):
-        async def exec_test(turn_context: TurnContext):
-            dialog_context = await dialogs.create_context(turn_context)
-            results = await dialog_context.continue_dialog()
+def test_luis_intent():
+    """Vérifie la top intent
+    """
+    # Instantiate prediction client
+    clientRuntime = LUISRuntimeClient(
+        CONFIG.LUIS_API_ENDPOINT,
+        CognitiveServicesCredentials(CONFIG.LUIS_API_KEY))
+    # Create request
+    request ='book a flight from cok to cdg from 01/01/2021 to 02/02/2021 for a budget of 3500 euros'
 
-            if results.status == DialogTurnStatus.Empty:
-                await main_dialog.intro_step(dialog_context)
+    # Get response
+    response = clientRuntime.prediction.resolve(CONFIG.LUIS_APP_ID, query=request)
 
-            elif results.status == DialogTurnStatus.Complete:
-                await main_dialog.act_step(dialog_context)
-
-            await conv_state.save_changes(turn_context)
-
-
-        conv_state = ConversationState(MemoryStorage())
-        dialogs_state = conv_state.create_property("dialog-state")
-        dialogs = DialogSet(dialogs_state)
-
-        booking_dialog = BookingDialog()
-        main_dialog = MainDialog(
-            FlightBookingRecognizer(DefaultConfig()), booking_dialog
-        )
-        dialogs.add(booking_dialog)
-
-        text_prompt = await main_dialog.find_dialog(TextPrompt.__name__)
-        dialogs.add(text_prompt)
-
-        wf_dialog = await main_dialog.find_dialog("WFDialog")
-        dialogs.add(wf_dialog)
-
-        adapter = TestAdapter(exec_test)
-
-        await adapter.test("Hello", "What can I help you with today?")
-        await adapter.test("I want to go to Paris", "From what city will you be travelling?")
-        await adapter.test("from New York", "On what date would you like to travel?")
-        await adapter.test("the 21 september 2022", "On what date would you like to return?")
-        await adapter.test("the 5 october 2022", "What is your budget for traveling?")
-        await adapter.test(
-            "my bydget is 600$",
-            "Please confirm, I have you traveling from: from New York to: Paris departure: 2022-09-21 return: 2022-10-05 price: my bydget is 600$. (1) Yes or (2) No"
-            )
-
-    # Test une annulation de réservation
-    async def test_booking_cancel(self):
-        async def exec_test(turn_context: TurnContext):
-            dialog_context = await dialogs.create_context(turn_context)
-            results = await dialog_context.continue_dialog()
-
-            if results.status == DialogTurnStatus.Empty:
-                await main_dialog.intro_step(dialog_context)
-
-            elif results.status == DialogTurnStatus.Complete:
-                await main_dialog.act_step(dialog_context)
-
-            await conv_state.save_changes(turn_context)
+    check_top_intent = 'BookFlight'
+    is_top_intent = response.top_scoring_intent.intent
+    assert check_top_intent == is_top_intent
 
 
-        conv_state = ConversationState(MemoryStorage())
-        dialogs_state = conv_state.create_property("dialog-state")
-        dialogs = DialogSet(dialogs_state)
+def test_luis_origin():
+    """Vérifie la  détection de la ville d'origine
+    """
+    # Instantiate prediction client
+    clientRuntime = LUISRuntimeClient(
+        CONFIG.LUIS_API_ENDPOINT,
+        CognitiveServicesCredentials(CONFIG.LUIS_API_KEY))
+    
+    # Create request
+    request ='I want to book a flight from Toulouse to Mexico from 18/01/2022 to 01/02/2023. I have a budget of 1000€'
 
-        booking_dialog = BookingDialog()
-        main_dialog = MainDialog(
-            FlightBookingRecognizer(DefaultConfig()), booking_dialog
-        )
-        dialogs.add(booking_dialog)
-
-        text_prompt = await main_dialog.find_dialog(TextPrompt.__name__)
-        dialogs.add(text_prompt)
-
-        wf_dialog = await main_dialog.find_dialog("WFDialog")
-        dialogs.add(wf_dialog)
-
-        adapter = TestAdapter(exec_test)
-
-        await adapter.test("Hello", "What can I help you with today?")
-        await adapter.test("I want to leave from Paris", "To what city would you like to travel?")
-        await adapter.test("Cancel", "Cancelling")
-
-    # Test une réservation en fournissant toutes les informations en une seule fois
-    async def test_booking_one_shot(self):
-        async def exec_test(turn_context: TurnContext):
-            dialog_context = await dialogs.create_context(turn_context)
-            results = await dialog_context.continue_dialog()
-
-            if results.status == DialogTurnStatus.Empty:
-                await main_dialog.intro_step(dialog_context)
-
-            elif results.status == DialogTurnStatus.Complete:
-                await main_dialog.act_step(dialog_context)
-
-            await conv_state.save_changes(turn_context)
+    # Get response
+    response = clientRuntime.prediction.resolve(CONFIG.LUIS_APP_ID, query=request)
+    
+    check_origin = 'toulouse'
+    all_entities = response.entities
+    
+    for i in range(0, len(all_entities)):
+        if all_entities[i].type == 'or_city':
+            is_origin = all_entities[i].entity
+    
+    assert check_origin == is_origin
 
 
-        conv_state = ConversationState(MemoryStorage())
-        dialogs_state = conv_state.create_property("dialog-state")
-        dialogs = DialogSet(dialogs_state)
+def test_luis_destination():
+    """vérifie la détection de la ville de destination
+    """
+    # Instantiate prediction client
+    clientRuntime = LUISRuntimeClient(
+        CONFIG.LUIS_API_ENDPOINT,
+        CognitiveServicesCredentials(CONFIG.LUIS_API_KEY))
+    
+    # Create request
+    request ='I want to book a flight from Toulouse to Mexico from 18/01/2022 to 01/02/2023. I have a budget of 1000€'
 
-        booking_dialog = BookingDialog()
-        main_dialog = MainDialog(
-            FlightBookingRecognizer(DefaultConfig()), booking_dialog
-        )
-        dialogs.add(booking_dialog)
+    # Get response
+    response = clientRuntime.prediction.resolve(CONFIG.LUIS_APP_ID, query=request)
+    
+    check_destination = 'mexico'
+    all_entities = response.entities
+    
+    for i in range(0, len(all_entities)):
+        if all_entities[i].type == 'dst_city':
+            is_destination = all_entities[i].entity
+    
+    assert check_destination == is_destination
 
-        text_prompt = await main_dialog.find_dialog(TextPrompt.__name__)
-        dialogs.add(text_prompt)
 
-        wf_dialog = await main_dialog.find_dialog("WFDialog")
-        dialogs.add(wf_dialog)
+def test_luis_budget():
+    """Vérifie la détection du budget
+    """
+    # Instantiate prediction client
+    clientRuntime = LUISRuntimeClient(
+        CONFIG.LUIS_API_ENDPOINT,
+        CognitiveServicesCredentials(CONFIG.LUIS_API_KEY))
+    
+    # Create request
+    request ='I want to book a flight from Toulouse to Mexico from 18/01/2022 to 01/02/2023. I have a budget of 1000€'
 
-        adapter = TestAdapter(exec_test)
-
-        await adapter.test("Hello", "How can I help you?")
-        await adapter.test(
-            "I want to book a flight from Toulouse to Madrid. My budget is 300$. I will leave the 24 december 2022 and coming back the 18 january 2023.",
-            "Please confirm, I have you traveling from: Toulouse to: Madrid departure: 2022-12-24 return: 2023-01-18 price: 300. (1) Yes or (2) No"
-            )
-            
+    # Get response
+    response = clientRuntime.prediction.resolve(CONFIG.LUIS_APP_ID, query=request)
+    
+    check_budget = '1000 €'
+    all_entities = response.entities
+    
+    for i in range(0, len(all_entities)):
+        if all_entities[i].type == 'budget':
+            is_budget = all_entities[i].entity
+    
+    assert check_budget == is_budget
