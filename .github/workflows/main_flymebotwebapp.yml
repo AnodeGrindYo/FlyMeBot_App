@@ -32,13 +32,13 @@ jobs:
 
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
       - name: test application
-        run: python -m pytest
         env:
           APPINSIGHTS_INSTRUMENTATION_KEY: ${{secrets.APPINSIGHTS_INSTRUMENTATION_KEY}}
           LUIS_API_ENDPOINT: ${{secrets.LUIS_API_ENDPOINT}}
           LUIS_API_HOST_NAME: ${{secrets.LUIS_API_HOST_NAME}}
           LUIS_API_KEY: ${{secrets.LUIS_API_KEY}}
           LUIS_APP_ID: ${{secrets.LUIS_APP_ID}}
+        run: python -c import os;print(os.environ["SECRET_TEST"]);pytest
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v2
