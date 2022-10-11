@@ -39,7 +39,7 @@ jobs:
           LUIS_API_KEY: ${{secrets.LUIS_API_KEY}}
           LUIS_APP_ID: ${{secrets.LUIS_APP_ID}}
           SECRET_TEST: ${{secrets.SECRET_TEST}}
-        run: python -c 'import os;print(os.environ['SECRET_TEST']);pytest
+        run: python -c 'import os;print(os.environ['SECRET_TEST']);pytest'
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v2
