@@ -197,10 +197,10 @@ class BookingDialog(CancelAndHelpDialog):
 
         msg = (
             f"Please confirm :\n\n"
-            # f"Departure city : { booking_details.origin }\n\n" 
-            # f"Destination : { booking_details.destination }\n\n"
-            # f"Starting on: { booking_details.start_date }, ending on: { booking_details.end_date}\n\n"
-            # f"Budget: { booking_details.budget }."
+            f"Departure city : { booking_details.origin }\n\n" 
+            f"Destination : { booking_details.destination }\n\n"
+            f"Starting on: { booking_details.start_date }, ending on: { booking_details.end_date}\n\n"
+            f"Budget: { booking_details.budget }."
         )
 
         # Offer a YES/NO prompt.

@@ -41,7 +41,6 @@ jobs:
           LUIS_APP_ID: ${{ secrets.LUIS_APP_ID }}
           SECRET_TEST: ${{ secrets.SECRET_TEST }}
         run: pytest
-        # run: python -c 'import os;print(os.environ)'
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v2
