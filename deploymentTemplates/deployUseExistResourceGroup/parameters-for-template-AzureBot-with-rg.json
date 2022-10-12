@@ -21,10 +21,10 @@
             "value": "UserAssignedMSI"
         },
         "UMSIName": {
-            "value": ""
+            "value": "Fly_Me_Bot"
         },
         "UMSIResourceGroupName": {
-            "value": ""
+            "value": "OC_P10"
         },
         "tenantId": {
             "value": "1e5648d9-7675-4abd-8cf3-21e695d614d2"
