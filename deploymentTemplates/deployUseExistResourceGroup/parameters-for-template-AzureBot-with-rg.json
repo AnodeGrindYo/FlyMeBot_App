@@ -3,19 +3,31 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "azureBotId": {
-            "value": ""
+            "value": "Fly_Me_BOT"
         },
         "azureBotSku": {
-            "value": "S1"
+            "value": "F0"
         },
         "azureBotRegion": {
             "value": "global"
         },
         "botEndpoint": {
-            "value": ""
+            "value": "https://flymebotwebapp.azurewebsites.net/api/messages"
         },
         "appId": {
+            "value": "c8bb27c2-18ae-4f55-91aa-4ae666bc3420"
+        },
+        "appType": {
+            "value": "UserAssignedMSI"
+        },
+        "UMSIName": {
             "value": ""
+        },
+        "UMSIResourceGroupName": {
+            "value": ""
+        },
+        "tenantId": {
+            "value": "1e5648d9-7675-4abd-8cf3-21e695d614d2"
         }
     }
 }
