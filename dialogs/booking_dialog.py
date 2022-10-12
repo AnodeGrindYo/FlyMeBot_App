@@ -30,8 +30,10 @@ class BookingDialog(CancelAndHelpDialog):
 
         self.logger = logging.getLogger(__name__)
         
-        self.logger.addHandler(AzureLogHandler(
-            connection_string = INSTRUMENTATION_KEY)
+        self.logger.addHandler(
+            AzureLogHandler(
+                connection_string = INSTRUMENTATION_KEY
+            )
         )
 
         text_prompt = TextPrompt(TextPrompt.__name__)
@@ -54,10 +56,10 @@ class BookingDialog(CancelAndHelpDialog):
         self.add_dialog(text_prompt)
         self.add_dialog(ConfirmPrompt(ConfirmPrompt.__name__))
         self.add_dialog(
-            DateResolverDialog(DateResolverDialog.START_DATE_DIALOG_ID, self.telemetry_client)
+            DateResolverDialog(DateResolverDialog.START_DATE_DIALOG_ID)
         )
         self.add_dialog(
-            DateResolverDialog(DateResolverDialog.END_DATE_DIALOG_ID, self.telemetry_client)
+            DateResolverDialog(DateResolverDialog.END_DATE_DIALOG_ID)
         )
         self.add_dialog(waterfall_dialog)
 
@@ -211,10 +213,8 @@ class BookingDialog(CancelAndHelpDialog):
         booking_details = step_context.options
         
         if step_context.result:
-
             self.logger.setLevel(logging.INFO)
             self.logger.info('Flight booked, customer satisfied')
-
             return await step_context.end_dialog(booking_details)
 
         properties = {'custom_dimensions': booking_details.__dict__}

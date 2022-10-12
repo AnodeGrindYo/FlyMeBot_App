@@ -11,8 +11,20 @@ class Intent(Enum):
     CANCEL = "Cancel"
     NONE_INTENT = "None"
 
-MAP_KEY_ATTR = {'or_city': 'origin', 'dst_city':'destination', 'str_date': 'start_date', 'end_date': 'end_date', 'budget': 'budget'}
-MAP_KEY_TYPE = {'or_city': 'geographyV2_city', 'dst_city':'geographyV2_city', 'str_date': 'datetime', 'end_date': 'datetime', 'budget': 'number'}
+MAP_KEY_ATTR = {
+    'or_city': 'origin', 
+    'dst_city':'destination', 
+    'str_date': 'start_date', 
+    'end_date': 'end_date', 
+    'budget': 'budget'
+}
+MAP_KEY_TYPE = {
+    'or_city': 'geographyV2_city', 
+    'dst_city':'geographyV2_city', 
+    'str_date': 'datetime', 
+    'end_date': 'datetime', 
+    'budget': 'number'
+}
 
 def top_intent(intents: Dict[Intent, dict]) -> TopIntent:
     max_intent = Intent.NONE_INTENT

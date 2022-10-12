@@ -15,7 +15,7 @@
             "value": "https://flymebotwebapp.azurewebsites.net/api/messages"
         },
         "appId": {
-            "value": "c8bb27c2-18ae-4f55-91aa-4ae666bc3420"
+            "value": "4fcb967e-f472-4ee5-9832-ce6de8d09720"
         },
         "appType": {
             "value": "UserAssignedMSI"
