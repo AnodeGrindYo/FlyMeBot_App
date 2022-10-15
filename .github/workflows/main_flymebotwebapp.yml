@@ -39,7 +39,6 @@ jobs:
           LUIS_API_HOST_NAME: ${{ secrets.LUIS_API_HOST_NAME }}
           LUIS_API_KEY: ${{ secrets.LUIS_API_KEY }}
           LUIS_APP_ID: ${{ secrets.LUIS_APP_ID }}
-          SECRET_TEST: ${{ secrets.SECRET_TEST }}
         run: pytest
 
       - name: Upload artifact for deployment jobs

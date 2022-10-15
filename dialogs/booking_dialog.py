@@ -211,7 +211,11 @@ class BookingDialog(CancelAndHelpDialog):
     async def final_step(self, step_context: WaterfallStepContext) -> DialogTurnResult:
         """Complete the interaction and end the dialog."""
         booking_details = step_context.options
-        
+        self.logger.info(step_context.result)
+        import sys
+        print(step_context.options, file=sys.stdout)
+        print(step_context.result, file=sys.stdout)
+        print(step_context.values, file=sys.stdout)
         if step_context.result:
             self.logger.setLevel(logging.INFO)
             self.logger.info('Flight booked, customer satisfied')
