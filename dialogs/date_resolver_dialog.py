@@ -11,7 +11,7 @@ from botbuilder.dialogs.prompts import (
     DateTimeResolution,
 )
 from .cancel_and_help_dialog import CancelAndHelpDialog
-
+from datetime import datetime
 
 class DateResolverDialog(CancelAndHelpDialog):
     """Resolve the date"""
@@ -53,21 +53,11 @@ class DateResolverDialog(CancelAndHelpDialog):
 
         if self.dialog_id == DateResolverDialog.START_DATE_DIALOG_ID:
             prompt_msg = (
-                    f"What is your desired departure date ? \n(example: 18/01/1988)"
-                    # f"DEBUG:"
-                    # f"Departure city : { booking_details.origin }\n\n" 
-                    # f"Destination : { booking_details.destination }\n\n"
-                    # f"Starting on: { booking_details.start_date }, ending on: { booking_details.end_date}\n\n"
-                    # f"Budget: { booking_details.budget }."
+                    f"What is your desired departure date ? \n(example: { datetime.today().strftime('%d/%m/%Y') })"
                 )
         elif self.dialog_id == DateResolverDialog.END_DATE_DIALOG_ID:
             prompt_msg = (
-                    f"What is your desired return date ? \n(example: 18/01/1988)"
-                    # f"DEBUG:"
-                    # f"Departure city : { booking_details.origin }\n\n" 
-                    # f"Destination : { booking_details.destination }\n\n"
-                    # f"Starting on: { booking_details.start_date }, ending on: { booking_details.end_date}\n\n"
-                    # f"Budget: { booking_details.budget }."
+                    f"What is your desired return date ? \n(example: { datetime.today().strftime('%d/%m/%Y') })"
                 )
         else:
             prompt_msg = "On what date would you like to travel?"

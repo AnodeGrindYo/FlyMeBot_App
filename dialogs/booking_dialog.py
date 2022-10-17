@@ -2,8 +2,8 @@
 
 from datatypes_date_time.timex import Timex
 
-from botbuilder.dialogs import WaterfallDialog, WaterfallStepContext, DialogTurnResult
-from botbuilder.dialogs.prompts import ConfirmPrompt, TextPrompt, PromptOptions
+from botbuilder.dialogs import WaterfallDialog, WaterfallStepContext, DialogTurnResult, Choice
+from botbuilder.dialogs.prompts import ConfirmPrompt, TextPrompt, PromptOptions, ChoicePrompt
 from botbuilder.core import MessageFactory, BotTelemetryClient, NullTelemetryClient
 from .cancel_and_help_dialog import CancelAndHelpDialog
 from .date_resolver_dialog import DateResolverDialog
@@ -11,6 +11,7 @@ from .date_resolver_dialog import DateResolverDialog
 from config import DefaultConfig
 import logging
 from opencensus.ext.azure.log_exporter import AzureLogHandler
+
 
 CONFIG = DefaultConfig()
 INSTRUMENTATION_KEY = CONFIG.APPINSIGHTS_INSTRUMENTATION_KEY
@@ -54,7 +55,8 @@ class BookingDialog(CancelAndHelpDialog):
         self.initial_dialog_id = WaterfallDialog.__name__
 
         self.add_dialog(text_prompt)
-        self.add_dialog(ConfirmPrompt(ConfirmPrompt.__name__))
+        # self.add_dialog(ConfirmPrompt(ConfirmPrompt.__name__))
+        self.add_dialog(ChoicePrompt(ChoicePrompt.__name__))
         self.add_dialog(
             DateResolverDialog(DateResolverDialog.START_DATE_DIALOG_ID)
         )
@@ -71,14 +73,7 @@ class BookingDialog(CancelAndHelpDialog):
 
         if booking_details.origin is None:
             msg = (
-                    # f"{type(step_context)}\n\n"
-                    # f"{step_context.values}\n\n"
                     f"What is your departure city ?\n\n(example: Paris)"
-                    # f"DEBUG:"
-                    # f"Departure city : { booking_details.origin }\n\n" 
-                    # f"Destination : { booking_details.destination }\n\n"
-                    # f"Starting on: { booking_details.start_date }, ending on: { booking_details.end_date}\n\n"
-                    # f"Budget: { booking_details.budget }."
                 )
             return await step_context.prompt(
                 TextPrompt.__name__,
@@ -103,11 +98,6 @@ class BookingDialog(CancelAndHelpDialog):
         if booking_details.destination is None:
             msg = (
                     f"What is your destination city ?\n\n(example: Madrid)"
-                    # f"DEBUG:"
-                    # f"Departure city : { booking_details.origin }\n\n" 
-                    # f"Destination : { booking_details.destination }\n\n"
-                    # f"Starting on: { booking_details.start_date }, ending on: { booking_details.end_date}\n\n"
-                    # f"Budget: { booking_details.budget }."
                     )
             return await step_context.prompt(
                 TextPrompt.__name__,
@@ -197,34 +187,41 @@ class BookingDialog(CancelAndHelpDialog):
 
         msg = (
             f"Please confirm :\n\n"
-            f"Departure city : { booking_details.origin }\n\n" 
+            f"Departure : { booking_details.origin }\n\n" 
             f"Destination : { booking_details.destination }\n\n"
-            f"Starting on: { booking_details.start_date }, ending on: { booking_details.end_date}\n\n"
+            f"Starting on: { booking_details.start_date }\n\n"
+            f"Ending on: { booking_details.end_date}\n\n"
             f"Budget: { booking_details.budget }."
+        )
+        
+        prompt_options = PromptOptions(
+            choices = [Choice("Yep"), Choice("Nope")],
+            prompt = MessageFactory.text(msg)
         )
 
         # Offer a YES/NO prompt.
         return await step_context.prompt(
-            ConfirmPrompt.__name__, PromptOptions(prompt=MessageFactory.text(msg))
+            # For some reason, boolean returned values are inverted once deployed on Azure
+            # So I've made a custom prompt
+            # ConfirmPrompt.__name__, PromptOptions(prompt=MessageFactory.text(msg)) 
+            ChoicePrompt.__name__, prompt_options
         )
 
     async def final_step(self, step_context: WaterfallStepContext) -> DialogTurnResult:
         """Complete the interaction and end the dialog."""
         booking_details = step_context.options
-        self.logger.info(step_context.result) # debug log
         import sys
-        print(step_context.options, file=sys.stdout)
-        print(step_context.result, file=sys.stdout)
-        print(step_context.values, file=sys.stdout)
-        if step_context.result:
+        print(step_context.result.value, file=sys.stdout)
+
+        if step_context.result.value == "Yep":
             self.logger.setLevel(logging.INFO)
-            self.logger.info('Flight booked, customer satisfied')
+            self.logger.info('Flight booked with success : the customer is satisfied')
             return await step_context.end_dialog(booking_details)
 
         properties = {'custom_dimensions': booking_details.__dict__}
         
         self.logger.setLevel(logging.ERROR)
-        self.logger.error('Customer is not satisfied with the Bot\'s proposition', extra=properties)
+        self.logger.error("The customer is not satisfied with the Bot's proposition", extra=properties)
 
         return await step_context.end_dialog()
 

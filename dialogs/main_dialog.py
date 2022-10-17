@@ -64,7 +64,7 @@ class MainDialog(ComponentDialog):
         message_text = (
             str(step_context.options)
             if hasattr(step_context, "options") and step_context.options is not None
-            else "What can I help you with today?\n\n(example: \"I want to book a flight from Paris to Madrid\""
+            else "What can I help you with today?\n\n(example: \"I want to book a flight from Paris to Madrid\")"
         )
         prompt_message = MessageFactory.text(
             message_text, message_text, InputHints.expecting_input
