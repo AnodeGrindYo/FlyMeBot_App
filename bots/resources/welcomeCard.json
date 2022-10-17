@@ -21,9 +21,16 @@
       "type": "TextBlock",
       "size": "default",
       "isSubtle": "true",
-      "text": "Yo! You look like you seriously need a vacation! I can help you to book a flight. Just say 'Hi' to start",
+      "text": "Yo! You look like you seriously need a vacation! I can help you to book a flight. Just click on the button or say 'Hi' to start",
       "wrap": true,
       "maxLines": 0
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "Let's book a flight !",
+      "data": "Let's book a flight !"
     }
   ]
 }

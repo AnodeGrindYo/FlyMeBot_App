@@ -4,13 +4,14 @@ from botbuilder.dialogs import (
     WaterfallStepContext,
     DialogTurnResult,
 )
-from botbuilder.dialogs.prompts import TextPrompt, PromptOptions
+from botbuilder.dialogs.prompts import TextPrompt, PromptOptions, ChoicePrompt
 from botbuilder.core import (
     MessageFactory,
     TurnContext,
     BotTelemetryClient,
     NullTelemetryClient,
 )
+from botbuilder.dialogs.choices import Choice
 from botbuilder.schema import InputHints, Attachment
 import json, re
 from booking_details import BookingDetails
@@ -63,14 +64,16 @@ class MainDialog(ComponentDialog):
         message_text = (
             str(step_context.options)
             if hasattr(step_context, "options") and step_context.options is not None
-            else "What can I help you with today?"
+            else "What can I help you with today?\n\n(example: \"I want to book a flight from Paris to Madrid\""
         )
         prompt_message = MessageFactory.text(
             message_text, message_text, InputHints.expecting_input
         )
 
         return await step_context.prompt(
-            TextPrompt.__name__, PromptOptions(prompt=prompt_message)
+            TextPrompt.__name__, PromptOptions(
+                    prompt=prompt_message,
+                )
         )
 
     async def act_step(self, step_context: WaterfallStepContext) -> DialogTurnResult:

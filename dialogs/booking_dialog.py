@@ -73,7 +73,7 @@ class BookingDialog(CancelAndHelpDialog):
             msg = (
                     # f"{type(step_context)}\n\n"
                     # f"{step_context.values}\n\n"
-                    f"What is your departure city ?\n\n"
+                    f"What is your departure city ?\n\n(example: Paris)"
                     # f"DEBUG:"
                     # f"Departure city : { booking_details.origin }\n\n" 
                     # f"Destination : { booking_details.destination }\n\n"
@@ -102,7 +102,7 @@ class BookingDialog(CancelAndHelpDialog):
 
         if booking_details.destination is None:
             msg = (
-                    f"What is your destination city ?\n\n"
+                    f"What is your destination city ?\n\n(example: Madrid)"
                     # f"DEBUG:"
                     # f"Departure city : { booking_details.origin }\n\n" 
                     # f"Destination : { booking_details.destination }\n\n"
@@ -170,7 +170,7 @@ class BookingDialog(CancelAndHelpDialog):
 
         if booking_details.budget is None:
             msg = (
-                    f"Let's talk about money... What is your budget for travelling?\n\n"
+                    f"Let's talk about money... What is your budget for travelling?\n\n(example: 3.14€)"
                     # f"DEBUG:"
                     # f"Departure city : { booking_details.origin }\n\n" 
                     # f"Destination : { booking_details.destination }\n\n"
