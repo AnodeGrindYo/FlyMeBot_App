@@ -12,13 +12,15 @@ from botbuilder.core import (
     NullTelemetryClient,
 )
 from botbuilder.dialogs.choices import Choice
-from botbuilder.schema import InputHints, Attachment
+from botbuilder.schema import InputHints, Attachment, Activity, ActivityTypes
 import json, re
 from booking_details import BookingDetails
 from flight_booking_recognizer import FlightBookingRecognizer
 from helpers.luis_helper import LuisHelper, Intent
 from .booking_dialog import BookingDialog
 import os
+import random
+
 
 
 class MainDialog(ComponentDialog):
@@ -61,10 +63,54 @@ class MainDialog(ComponentDialog):
             )
 
             return await step_context.next(None)
+        
+        # Funny messages that can happen sometimes
+        chances = 10/100
+        if random.random() < chances:
+            # first funny message
+            msg = "Please wait a minute, I need a coffee..."
+            prompt_funny = MessageFactory.text(msg, msg, InputHints.ignoring_input)
+            await step_context.context.send_activity(prompt_funny)
+            typing_delay=Activity(type='delay',value=3000)
+            await step_context.context.send_activity(typing_delay) # delay msg
+
+            # second funny message
+            msg = "Oh sorry, I forgot I'm a bot... I don't drink coffee"
+            prompt_funny = MessageFactory.text(msg, msg, InputHints.ignoring_input)
+            await step_context.context.send_activity(prompt_funny)
+            typing_delay=Activity(type='delay',value=2000)
+            await step_context.context.send_activity(typing_delay) # delay msg
+            # third message
+            msg = "I'll just take a cookie"
+            prompt_funny = MessageFactory.text(msg, msg, InputHints.ignoring_input)
+            await step_context.context.send_activity(prompt_funny)
+            typing_delay=Activity(type='delay',value=1500)
+            await step_context.context.send_activity(typing_delay) # delay msg
+            # fouth message
+            msg = "ʕᵔᴥᵔʔ"
+            prompt_funny = MessageFactory.text(msg, msg, InputHints.ignoring_input)
+            await step_context.context.send_activity(prompt_funny)
+            typing_delay=Activity(type='delay',value=500)
+            await step_context.context.send_activity(typing_delay) # delay msg
+            
+        
+        ls_msg = [
+            "What can I help you with today?",
+            "Is there anything I can do for you today?",
+            "How may I help you today?",
+            "What can I do for you?",
+            "What do you need today?",
+            "Can I get you something today?",
+            "How can I help you now?",
+            "How can I assist you today?",
+            "How can I be of service to you today?",
+            "I can do anything for you. ANYTHING! Unless it's about something other than booking a flight"
+        ]
+        msg = random.choice(ls_msg)
         message_text = (
             str(step_context.options)
             if hasattr(step_context, "options") and step_context.options is not None
-            else "What can I help you with today?\n\n(example: \"I want to book a flight from Paris to Madrid\")"
+            else f"{ msg }\n\n(try: \"I want to book a flight from Paris to Madrid\")"
         )
         prompt_message = MessageFactory.text(
             message_text, message_text, InputHints.expecting_input
@@ -94,8 +140,17 @@ class MainDialog(ComponentDialog):
             return await step_context.begin_dialog(self._booking_dialog_id, luis_result)
 
         else:
+            ls_wtf = [
+                "Sorry, I didn't get that. Please try asking in a different way",
+                "Sorry, I missed it. Try to ask it differently.",
+                "Excuse me, I didn't understand. Try to say it another way.",
+                "Excuse me, I didn't understand. Try to say it another way.",
+                "Pardon me, I didn't understand. Try to ask it another way.",
+                "I'm sorry, I didn't understand. Try to ask it in some other way.",
+                "Sorry... wtf did you just say?"
+            ]
             didnt_understand_text = (
-                "Sorry, I didn't get that. Please try asking in a different way"
+                f"{random.choice(ls_wtf)}"
             )
             didnt_understand_message = MessageFactory.text(
                 didnt_understand_text, didnt_understand_text, InputHints.ignoring_input
@@ -114,8 +169,15 @@ class MainDialog(ComponentDialog):
             card = self.create_adaptive_card_attachment(result)
             response = MessageFactory.attachment(card)
             await step_context.context.send_activity(response)
+        
+        ls_msg = [
+            "What else can I do for you?",
+            "Is there anything else I can do for you?",
+            "Can I take a break, or you need something else?",
+            "Oh, you're still here... You want something else?"
+        ]
 
-        prompt_message = "What else can I do for you ?"
+        prompt_message = f"{ random.choice(ls_msg) }"
         return await step_context.replace_dialog(self.id, prompt_message)
 
     def replace(self, templateCard: dict, data: dict):
